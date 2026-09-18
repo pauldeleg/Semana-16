@@ -1,25 +1,26 @@
-# Restaurante App
-## Jonnathan Paul Deleg Condo
+# Restaurante App — Semana 14
 
-Aplicación desarrollada en Python para la asignatura **Programación Orientada a Objetos**.
+## Jonnathan paul deleg condo
 
-En la Semana 13 se inicia la transición de la aplicación basada en consola hacia una aplicación con **interfaz gráfica de usuario (GUI)** utilizando **Tkinter**.
+## Componentes y Contenedores
 
-El proyecto mantiene la separación entre modelos, servicios, archivos de datos e interfaz gráfica, siguiendo la estructura trabajada durante las semanas anteriores.
+Aplicación desarrollada en Python para la asignatura **Programación Orientada a Objetos**, correspondiente a la Semana 14.
+
+En esta etapa se continúa la evolución de `restaurante_app`, mejorando la interfaz gráfica mediante el uso de componentes, contenedores y gestores de geometría de Tkinter. Se incorporan operaciones de registro, consulta, actualización y eliminación de productos, manteniendo la separación de responsabilidades y la persistencia de información en archivos JSON.
 
 ## Objetivo
 
-Implementar una estructura gráfica inicial para `restaurante_app`, integrando los modelos `Producto` y `Usuario` con archivos JSON y una interfaz desarrollada mediante Tkinter.
+Aplicar los fundamentos de componentes y contenedores en Tkinter para construir una interfaz gráfica organizada, clara y funcional, que permita gestionar los productos de un restaurante mediante formularios y botones.
 
-La aplicación permite realizar una simulación de acceso mediante usuario y contraseña y, después de un ingreso correcto, consultar los productos y usuarios registrados.
+El proyecto conserva la estructura modular desarrollada en la Semana 13 y mantiene el uso de modelos, servicios, archivos JSON y vistas gráficas.
 
 ## Tecnologías utilizadas
 
-* Python
-* Tkinter
-* Programación Orientada a Objetos
-* Archivos JSON
-* Git y GitHub
+* Python.
+* Tkinter y ttk.
+* Programación Orientada a Objetos (POO).
+* Archivos JSON.
+* Git y GitHub.
 
 ## Estructura del proyecto
 
@@ -45,239 +46,206 @@ restaurante_app/
 │   ├── login_view.py
 │   └── main_view.py
 │
+├── assets/ (opcional)
 ├── main.py
 └── README.md
 ```
 
-## Descripción de las carpetas
+## Descripción de los componentes
 
-### `datos/`
+### Carpeta `datos/`
 
-Contiene los archivos JSON utilizados para almacenar información local de la aplicación.
+Contiene los archivos JSON utilizados para almacenar información local.
 
-* `productos.json`: almacena los productos registrados del restaurante.
-* `usuarios.json`: almacena los usuarios y las credenciales utilizadas para la simulación de acceso.
+* **productos.json:** almacena los productos registrados del restaurante.
+* **usuarios.json:** almacena los usuarios y las credenciales utilizadas para el acceso.
 
-### `modelos/`
+### Carpeta `modelos/`
 
-Contiene las clases principales del sistema.
+Contiene las clases que representan las entidades del sistema.
 
-#### `producto.py`
+#### Producto
 
-Define la clase `Producto`, encargada de representar los productos del restaurante.
+Representa los productos del restaurante, incluyendo código, nombre, categoría, precio y stock, según los atributos definidos en el proyecto.
 
-El modelo mantiene propiedades, setters y validaciones para controlar los datos de los productos.
+El modelo mantiene el uso de `@property`, setters y validaciones para controlar la información de los productos.
 
-#### `usuario.py`
+#### Usuario
 
-Define la clase `Usuario`, encargada de representar a los usuarios del sistema.
+Representa los usuarios del sistema y sus datos de acceso.
 
-También utiliza propiedades, setters y validaciones para controlar la información de los usuarios y sus credenciales.
+Mantiene las propiedades, setters y validaciones implementadas previamente.
 
-### `servicios/`
+### Carpeta `servicios/`
 
-Contiene la lógica que permite trabajar con los datos de la aplicación.
+Contiene la lógica de acceso a los datos y las operaciones del restaurante.
 
-#### `archivo_servicio.py`
+#### ArchivoServicio
 
-Se encarga de realizar la lectura de los archivos JSON.
+Se encarga de leer y guardar la información en archivos JSON, manteniendo la responsabilidad de la persistencia.
 
-Su responsabilidad es trabajar con los archivos de datos sin mezclar esta tarea con la interfaz gráfica.
+#### RestauranteServicio
 
-#### `restaurante_servicio.py`
+Centraliza las operaciones relacionadas con los productos y usuarios.
 
-Centraliza las operaciones relacionadas con los usuarios y productos.
+Sus responsabilidades incluyen:
 
-Entre sus responsabilidades se encuentran:
+* Registrar productos.
+* Consultar y listar productos.
+* Actualizar productos.
+* Eliminar productos.
+* Validar los datos de las operaciones.
+* Validar el acceso de los usuarios.
+* Proporcionar información a las vistas gráficas.
 
-* Convertir los datos cargados en objetos.
-* Validar el usuario y la contraseña.
-* Listar los usuarios registrados.
-* Listar los productos registrados.
-* Consultar las cantidades de usuarios y productos.
+Las validaciones y operaciones de negocio se mantienen fuera de los botones y formularios de la interfaz.
 
-### `ui/`
+### Carpeta `ui/`
 
 Contiene las vistas de la interfaz gráfica desarrolladas con Tkinter.
 
-#### `login_view.py`
+#### LoginView
 
-Presenta la pantalla inicial de acceso.
+Presenta la pantalla de inicio de sesión y permite validar el acceso mediante usuario y contraseña.
 
-Permite ingresar:
+#### MainView
 
-* Usuario.
-* Contraseña.
+Presenta el panel principal de la aplicación y organiza las secciones de usuarios y productos mediante componentes y contenedores.
 
-También muestra mensajes cuando los campos están vacíos o las credenciales son incorrectas.
+La sección de productos incluye un formulario, botones de acción y un área para visualizar la información registrada.
 
-#### `main_view.py`
+## Componentes y contenedores utilizados
 
-Presenta la interfaz principal después de un ingreso correcto.
+Durante esta semana se incorporan componentes de Tkinter y ttk para mejorar la organización de la interfaz.
 
-Permite consultar:
+Entre los componentes utilizados se encuentran:
 
-* Productos registrados.
-* Usuarios registrados.
-* Ventas, identificada como una funcionalidad pendiente para una etapa posterior.
+* `Frame`: permite agrupar y organizar componentes.
+* `Label`: muestra textos y títulos.
+* `Entry`: permite ingresar datos de los productos.
+* `Button`: ejecuta acciones mediante `command=`.
+* `Treeview`: permite visualizar los productos en forma de tabla.
+* `messagebox`: muestra mensajes de información, advertencia y error.
 
-También permite cerrar sesión y regresar a la pantalla de acceso.
+### Gestores de geometría
 
-## `main.py`
+Se utilizan gestores de geometría de Tkinter para organizar los componentes de la interfaz:
 
-Es el punto de entrada de la aplicación.
+* `pack()`: organiza los componentes dentro de un contenedor.
+* `grid()`: organiza los componentes mediante filas y columnas.
 
-Sus principales responsabilidades son:
+Cada contenedor organiza sus elementos de forma clara, evitando mezclar innecesariamente los gestores de geometría en el mismo contenedor.
 
-1. Crear la ventana principal de Tkinter.
-2. Preparar los servicios.
-3. Cargar la información de los archivos JSON.
-4. Crear `RestauranteServicio`.
-5. Mostrar inicialmente `LoginView`.
-6. Cambiar entre `LoginView` y `MainView`.
-7. Mantener una única ventana principal y un único ciclo de ejecución de Tkinter.
+## Funcionalidades de productos
+
+La sección de productos permite realizar las siguientes operaciones:
+
+### Registrar producto
+
+El usuario ingresa la información del producto mediante un formulario y presiona el botón de registro.
+
+El servicio valida los datos, crea el producto y guarda la información en `productos.json`.
+
+### Consultar productos
+
+Permite cargar y visualizar los productos registrados en el archivo JSON mediante los servicios de la aplicación.
+
+### Actualizar producto
+
+Permite seleccionar o identificar un producto mediante el código definido en el proyecto y modificar sus datos.
+
+Los cambios se validan y se guardan en `productos.json`.
+
+### Eliminar producto
+
+Permite eliminar un producto registrado mediante su identificador.
+
+La operación se realiza a través de `RestauranteServicio` y se actualiza la información almacenada.
 
 ## Flujo de funcionamiento
 
 ```text
 Inicio de la aplicación
           ↓
-       main.py
-          ↓
-Carga de productos y usuarios
-          ↓
-RestauranteServicio
-          ↓
       LoginView
           ↓
-Usuario y contraseña
+Validación de credenciales
           ↓
-Validación de acceso
-       ↙       ↘
- Incorrecto    Correcto
-     ↓             ↓
-  Mensaje       MainView
-                   ↓
-        ┌──────────┼──────────┐
-        ↓          ↓          ↓
-    Productos   Usuarios   Ventas
-                              ↓
-                          Pendiente
-                   ↓
-              Cerrar sesión
-                   ↓
-               LoginView
-```
-
-## Inicio de sesión
-
-Para realizar las pruebas de funcionamiento se deben utilizar las credenciales registradas en `datos/usuarios.json`.
-
-Por ejemplo:
-
-```text
-Usuario: admin
-Contraseña: 1234
-```
-
-Estas credenciales son únicamente para la simulación de acceso de la aplicación.
-
-## Funcionamiento de los productos
-
-Los productos se encuentran almacenados en `datos/productos.json`.
-
-La interfaz gráfica no accede directamente al archivo JSON para mostrar los productos.
-
-El flujo utilizado es:
-
-```text
+      MainView
+          ↓
+Navegación por secciones
+          ↓
+       Productos
+          ↓
+Formulario y botones
+          ↓
+Registrar | Consultar | Actualizar | Eliminar
+          ↓
+RestauranteServicio
+          ↓
+ArchivoServicio
+          ↓
 productos.json
-      ↓
-ArchivoServicio
-      ↓
-RestauranteServicio
-      ↓
-MainView
-      ↓
-Productos registrados
+          ↓
+Actualización de la interfaz
 ```
 
-De esta manera se mantiene la separación de responsabilidades entre los archivos de datos, los servicios y la interfaz gráfica.
+## Separación de responsabilidades
 
-## Funcionamiento de los usuarios
+La aplicación mantiene una arquitectura modular:
 
-Los usuarios se encuentran almacenados en `datos/usuarios.json`.
+* **UI:** coordina la interacción con el usuario.
+* **RestauranteServicio:** ejecuta las operaciones y validaciones del dominio.
+* **ArchivoServicio:** administra la lectura y escritura de archivos JSON.
+* **Modelos:** representan las entidades `Producto` y `Usuario`.
+* **Datos:** almacenan la información local de la aplicación.
 
-El proceso de validación es:
+Las vistas no manipulan directamente los archivos JSON. Las operaciones se solicitan a través de los servicios correspondientes.
+
+## Persistencia de datos
+
+La información de los productos se conserva mediante el archivo:
 
 ```text
-usuarios.json
-      ↓
-ArchivoServicio
-      ↓
-RestauranteServicio
-      ↓
-LoginView
-      ↓
-Usuario + contraseña
-      ↓
-Validación
+datos/productos.json
 ```
 
-Si las credenciales coinciden con un usuario registrado, la aplicación permite ingresar a la interfaz principal.
+Después de registrar, actualizar o eliminar un producto, los cambios se guardan mediante `ArchivoServicio`.
 
-## Interfaz gráfica
-
-La aplicación utiliza una única ventana principal de Tkinter.
-
-La primera pantalla corresponde al inicio de sesión. Después de una autenticación correcta, se cambia a la interfaz principal sin crear una segunda ventana principal.
-
-Las vistas se comunican con los servicios para obtener la información necesaria.
+Esto permite que la información permanezca disponible después de cerrar y volver a ejecutar la aplicación.
 
 ## Ejecución
 
-Para ejecutar el proyecto se debe abrir una terminal en la carpeta principal de `restaurante_app` y utilizar:
+Para ejecutar el proyecto, se debe abrir una terminal en la carpeta principal de `restaurante_app` y utilizar:
 
 ```bash
 python main.py
 ```
 
-También puede utilizarse:
-
-```bash
-py main.py
-```
-
-dependiendo de la configuración de Python del equipo.
 
 ## Comprobaciones realizadas
 
 La aplicación permite comprobar:
 
 * Inicio correcto de la aplicación.
-* Visualización de la pantalla de acceso.
-* Ingreso de usuario y contraseña.
-* Validación de campos vacíos.
-* Validación de credenciales incorrectas.
-* Acceso con credenciales válidas.
-* Visualización de productos registrados.
-* Visualización de usuarios registrados.
-* Lectura de información mediante los servicios.
-* Cierre de sesión.
-* Regreso al LoginView dentro de la misma ventana principal.
+* Funcionamiento del inicio de sesión.
+* Visualización de la interfaz principal.
+* Consulta de usuarios registrados.
+* Presentación organizada del formulario de productos.
+* Registro de un nuevo producto.
+* Consulta de productos existentes.
+* Actualización de productos.
+* Eliminación de productos.
+* Persistencia de los cambios en `productos.json`.
+* Actualización de la información mostrada en la interfaz.
+* Uso de `RestauranteServicio` para las operaciones.
+* Organización de componentes mediante contenedores y gestores de geometría.
 
-## Funcionalidades pendientes
-
-En esta etapa no se implementan todavía todas las funcionalidades de la versión de consola.
-
-La opción de **Ventas** se mantiene identificada como funcionalidad pendiente y será desarrollada progresivamente en las siguientes semanas.
-
-También se podrán incorporar posteriormente otras operaciones del restaurante conforme avancen los contenidos de la asignatura.
 
 ## Conclusión
 
-La Semana 13 permitió iniciar la transición de `restaurante_app` desde una aplicación de consola hacia una aplicación con interfaz gráfica utilizando Tkinter.
+La Semana 14 permitió evolucionar la interfaz gráfica de `restaurante_app` mediante el uso de componentes, contenedores y gestores de geometría de Tkinter.
 
-La estructura implementada mantiene la separación de responsabilidades mediante modelos, servicios, archivos JSON y vistas gráficas. Esto permite que el proyecto pueda continuar creciendo sin concentrar toda la lógica en un solo archivo.
+La incorporación de formularios y botones facilita la gestión de productos a través de las operaciones de registro, consulta, actualización y eliminación. Además, se conserva la arquitectura modular, la persistencia mediante archivos JSON y la separación de responsabilidades entre la interfaz, los servicios y los modelos.
 
-La aplicación cuenta con una pantalla de acceso, validación de usuarios, una interfaz principal y consulta de productos y usuarios registrados, dejando preparada la base para incorporar nuevas funcionalidades en las siguientes semanas.
+Esta evolución establece una base organizada para continuar ampliando las funcionalidades del restaurante en las siguientes semanas.

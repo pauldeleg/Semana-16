@@ -1,5 +1,7 @@
 import tkinter as tk
+from pathlib import Path
 from tkinter import ttk
+
 
 
 class LoginView(tk.Frame):
@@ -12,6 +14,7 @@ class LoginView(tk.Frame):
         self.usuario_entry = None
         self.contraseña_entry = None
         self.mensaje_error = None
+        self.logo = None
         
         self.crear_interfaz()
         self.definir_estilos()
@@ -27,12 +30,32 @@ class LoginView(tk.Frame):
             padding=(14, 8),
             borderwidth=0,
         )
-        estilo.map("login.TButton", background=[("active", "#1d4ed8")])    
+        estilo.map("login.TButton", background=[("active", "#1d4ed8")]) 
+        
+    def cargar_logo(self):
+        ruta_base = Path(__file__).resolve().parent.parent
+        ruta_logo = ruta_base / "assets" / "logo" / "logo.png"
+        
+        if not ruta_logo.exists():
+            return None
+        
+        logo_original = tk.PhotoImage(file=str(ruta_logo))
+        self.logo = logo_original.subsample(1, 1)
+        return self.logo       
         
     def crear_interfaz(self):
         # Construye los componentes visuales del login.
         contenedor = tk.Frame(self, bg="#ffffff", padx=32, pady=28)
         contenedor.place(relx=0.5, rely=0.5, anchor="center")
+        
+        logo = self.cargar_logo()
+        if logo is not None:
+            tk.Label(
+                contenedor,
+                image=logo,
+                bg="#ffffff",
+            ).pack(pady=(0, 12))
+            
 
         titulo = tk.Label(
             contenedor,
@@ -80,7 +103,7 @@ class LoginView(tk.Frame):
         )
         
         self.contraseña_entry.pack(pady=(4, 14), ipady=4)
-        self.contraseña_entry.bind("<Return>", lambda evento: self.procesar_login())
+        
 
         self.mensaje_error = tk.Label(
             contenedor,
@@ -91,15 +114,24 @@ class LoginView(tk.Frame):
         )
         self.mensaje_error.pack(pady=(0, 14))
 
-        boton = ttk.Button(
+        boton = tk.Button(
             contenedor,
             text="Iniciar sesion",
             command=self.procesar_login,
-            style="Login.TButton",
+            bg="#1565c0",
+            fg="white",
+            font=("Arial", 11, "bold"),
+            relief="flat",
+            cursor="hand2",
+            pady=6
         )
-        boton.pack(fill="x")
+        boton.pack(fill="x", pady=(15, 0))
 
-    def procesar_login(self):
+    def procesar_login(self,):
+        
+        assert self.usuario_entry is not None
+        assert self.contraseña_entry is not None
+        assert self.mensaje_error is not None
         
         usuario = self.usuario_entry.get().strip()
         contraseña = self.contraseña_entry.get().strip()
