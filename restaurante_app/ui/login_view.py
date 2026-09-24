@@ -40,7 +40,7 @@ class LoginView(tk.Frame):
             return None
         
         logo_original = tk.PhotoImage(file=str(ruta_logo))
-        self.logo = logo_original.subsample(1, 1)
+        self.logo = logo_original.subsample(3, 3)
         return self.logo       
         
     def crear_interfaz(self):
