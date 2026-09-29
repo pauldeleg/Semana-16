@@ -10,5 +10,11 @@
         "usuario_id": "002",
         "producto_codigo": "P003",
         "fecha": "2026-09-24"
+    },
+    {
+        "identificacion": "V003",
+        "usuario_id": "002",
+        "producto_codigo": "P003",
+        "fecha": "2026-09-28"
     }
 ]

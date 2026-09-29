@@ -9,6 +9,8 @@ class MainView(tk.Frame):
         self.restaurante_servicio = restaurante_servicio
         self.usuario_actual = usuario_actual
         self.cerrar_sesion = cerrar_sesion
+        
+        
         self.contenido = None
         self.etiqueta_estado = None
         self.botones_menu = {}
@@ -20,6 +22,13 @@ class MainView(tk.Frame):
         self.producto_categoria_entry = None
         self.producto_precio_entry = None
         self.tabla_productos = None
+        self.usuario_identificacion_entry = None
+        self.usuario_nombre_entry = None
+        self.usuario_login_entry = None
+        self.usuario_contraseña_entry = None
+        self.usuario_rol_combo = None
+        self.usuario_rol_estado = None
+        self.usuario_identificacion_seleccionado = None
         self.tabla_usuarios = None
         self.usuario_venta_combo = None
         self.producto_venta_combo = None
@@ -141,7 +150,7 @@ class MainView(tk.Frame):
             text="RESTAURANTE",
             bg=self.color_encabezado,
             fg="#ffffff",
-            font=("Arial", 16, "bold"),
+            font=("Arial", 15, "bold"),
         ).pack(anchor="w", pady=(0, 8))
 
         tk.Label(
@@ -155,7 +164,8 @@ class MainView(tk.Frame):
         ).pack(anchor="w", pady=(0, 24))
 
         self.crear_boton_menu(frame_sidebar, "Inicio", self.mostrar_inicio, "home.png")
-        self.crear_boton_menu(frame_sidebar, "Usuarios", self.mostrar_usuarios, "users.png")
+        if self.usuario_actual.rol == "Asministrador":    
+            self.crear_boton_menu(frame_sidebar, "Usuarios", self.mostrar_usuarios, "users.png")
         self.crear_boton_menu(frame_sidebar, "Productos", self.mostrar_productos, "books.png")
         self.crear_boton_menu(frame_sidebar, "Ventas", self.mostrar_ventas, "sales.png")
 
@@ -269,19 +279,258 @@ class MainView(tk.Frame):
         
         
     def mostrar_usuarios(self):
+        if self.usuario_actual.rol != "Administrador":
+            messagebox.showerror("Usuarios", "Solo el administrador puede acceder a esta seccion.")
+            return
         self.marcar_seccion("Usuarios")
         self.limpiar_contenido()
 
         assert self.contenido is not None
 
-        self.crear_titulo_seccion("Usuarios registrados")
-        listado = self.crear_listado(self.contenido, "Consulta de usuarios")
+        self.crear_titulo_seccion("Gestion de usuarios")
+        
+        
+        cuerpo = tk.Frame(self.contenido, bg=self.color_fondo)
+        cuerpo.pack(fill="both", expand=True)
+        cuerpo.grid_columnconfigure(1, weight=1)
+        cuerpo.grid_rowconfigure(0, weight=1)
+
+        formulario = tk.LabelFrame(
+            cuerpo,
+            text="Datos del usuario",
+            bg=self.color_panel,
+            fg=self.color_encabezado,
+            font=("Arial", 10, "bold"),
+            padx=14,
+            pady=14,
+        )
+        formulario.grid(row=0, column=0, sticky="n", padx=(0, 18))
+
+        self.usuario_identificacion_entry = self.crear_campo(formulario, "Identificacion", 0)
+        self.usuario_nombre_entry = self.crear_campo(formulario, "Nombre", 1)
+        self.usuario_login_entry = self.crear_campo(formulario, "Usuario", 2)
+        self.usuario_contraseña_entry = self.crear_campo(formulario, "Contraseña", 3, show="*")
+
+        tk.Label(
+            formulario,
+            text="Rol",
+            bg=self.color_panel,
+            fg=self.color_texto,
+            font=("Arial", 10, "bold"),
+        ).grid(row=4, column=0, sticky="w", pady=(0, 8), padx=(0, 10))
+
+        self.usuario_rol_combo = ttk.Combobox(
+            formulario,
+            values=("Empleado", "Cliente"),
+            state="readonly",
+            width=25,
+        )
+        self.usuario_rol_combo.grid(row=4, column=1, sticky="ew", pady=(0, 8))
+        self.usuario_rol_combo.set("Cliente")
+
+        self.usuario_rol_estado = tk.Label(
+            formulario,
+            text="Rol seleccionado: Cliente",
+            bg=self.color_panel,
+            fg=self.color_texto,
+            font=("Arial", 9),
+        )
+        self.usuario_rol_estado.grid(row=5, column=0, columnspan=2, sticky="w", pady=(0, 8))
+
+        acciones = tk.Frame(formulario, bg=self.color_panel)
+        acciones.grid(row=6, column=0, columnspan=2, sticky="ew", pady=(12, 0))
+
+        botones = (
+            ("Registrar", self.registrar_usuario, "Accion.TButton", "add.png"),
+            ("Actualizar", self.actualizar_usuario, "Accion.TButton", "edit.png"),
+            ("Eliminar", self.eliminar_usuario, "Eliminar.TButton", "delete.png"),
+            ("Limpiar", self.limpiar_formulario_usuario, "Secundario.TButton", "clean.png"),
+        )
+
+        for texto, comando, estilo, icono in botones:
+            self.crear_boton(acciones, texto, comando, estilo, icono).pack(fill="x", pady=(0, 7))
+
+        listado = self.crear_listado(cuerpo, "Usuarios registrados", usar_grid=True)
         self.tabla_usuarios = self.crear_tabla(
             listado,
-            ("identificacion", "nombre", "usuario"),
-            ("Identificacion", "Nombre", "Usuario"),
+            ("identificacion", "nombre", "usuario", "rol"),
+            ("Identificacion", "Nombre", "Usuario", "Rol"),
         )
+
+        # Evento virtual: al seleccionar una fila cargamos el usuario en el formulario.
+        self.tabla_usuarios.bind("<<TreeviewSelect>>", self.al_seleccionar_usuario)
+        # Evento de teclado: Enter confirma el registro.
+        self.usuario_rol_combo.bind("<Return>", self.al_presionar_enter)
+        # Evento de teclado: Escape limpia el formulario.
+        for widget in (
+            self.usuario_identificacion_entry,
+            self.usuario_nombre_entry,
+            self.usuario_login_entry,
+            self.usuario_contraseña_entry,
+            self.usuario_rol_combo,
+            self.tabla_usuarios,
+        ):
+            widget.bind("<Escape>", self.al_presionar_escape)
+        # Evento virtual: detecta el cambio de rol en el Combobox.
+        self.usuario_rol_combo.bind("<<ComboboxSelected>>", self.al_seleccionar_rol)
+
         self.refrescar_usuarios()
+
+    def obtener_datos_usuario(self):
+        assert self.usuario_identificacion_entry is not None
+        assert self.usuario_nombre_entry is not None
+        assert self.usuario_login_entry is not None
+        assert self.usuario_contraseña_entry is not None
+        assert self.usuario_rol_combo is not None
+
+        return (
+            self.usuario_identificacion_entry.get(),
+            self.usuario_nombre_entry.get(),
+            self.usuario_login_entry.get(),
+            self.usuario_contraseña_entry.get(),
+            self.usuario_rol_combo.get(),
+        )
+
+    def registrar_usuario(self):
+        try:
+            self.restaurante_servicio.registrar_usuario(*self.obtener_datos_usuario())
+            self.limpiar_formulario_usuario()
+            self.refrescar_usuarios()
+            messagebox.showinfo("Usuarios", "Usuario registrado correctamente.")
+        except ValueError as error:
+            messagebox.showerror("Usuarios", str(error))
+
+    def al_seleccionar_usuario(self, event):
+        assert self.tabla_usuarios is not None
+
+        seleccion = self.tabla_usuarios.selection()
+        if not seleccion:
+            return
+
+        valores = self.tabla_usuarios.item(seleccion[0], "values")
+        if not valores:
+            return
+
+        identificacion = valores[0]
+        usuario = self.restaurante_servicio.buscar_usuario_por_identificacion(identificacion)
+        if usuario is None:
+            return
+
+        self.cargar_usuario_en_formulario(usuario)
+
+    def cargar_usuario_en_formulario(self, usuario):
+        assert self.usuario_identificacion_entry is not None
+        assert self.usuario_nombre_entry is not None
+        assert self.usuario_login_entry is not None
+        assert self.usuario_contraseña_entry is not None
+        assert self.usuario_rol_combo is not None
+
+        self.limpiar_campos_usuario()
+        self.usuario_identificacion_seleccionado = usuario.identificacion
+        self.usuario_identificacion_entry.insert(0, usuario.identificacion)
+        self.usuario_nombre_entry.insert(0, usuario.nombre)
+        self.usuario_login_entry.insert(0, usuario.usuario)
+        self.usuario_contraseña_entry.insert(0, usuario.contraseña)
+
+        if (
+            usuario.identificacion == self.usuario_actual.identificacion
+            and usuario.rol == "Administrador"
+        ):
+            self.usuario_rol_combo.configure(values=("Administrador",), state="disabled")
+        else:
+            self.usuario_rol_combo.configure(values=("Empleado", "Cliente"), state="readonly")
+        self.usuario_rol_combo.set(usuario.rol)
+        self.actualizar_texto_rol(usuario.rol)
+
+    def actualizar_usuario(self):
+        if self.usuario_identificacion_seleccionado is None:
+            messagebox.showerror("Usuarios", "Seleccione un usuario de la tabla.")
+            return
+
+        identificacion, nombre, usuario, contraseña, rol = self.obtener_datos_usuario()
+        if identificacion != self.usuario_identificacion_seleccionado:
+            messagebox.showerror("Usuarios", "No cambie la identificacion del usuario seleccionado.")
+            return
+
+        try:
+            self.restaurante_servicio.actualizar_usuario(
+                identificacion,
+                nombre,
+                usuario,
+                contraseña,
+                rol,
+                self.usuario_actual.identificacion,
+            )
+            self.refrescar_usuarios()
+            messagebox.showinfo("Usuarios", "Usuario actualizado correctamente.")
+        except ValueError as error:
+            messagebox.showerror("Usuarios", str(error))
+
+    def eliminar_usuario(self):
+        if self.usuario_identificacion_seleccionado is None:
+            messagebox.showerror("Usuarios", "Seleccione un usuario de la tabla.")
+            return
+
+        confirmar = messagebox.askyesno(
+            "Usuarios",
+            "Desea eliminar el usuario seleccionado?",
+        )
+        if not confirmar:
+            return
+
+        try:
+            self.restaurante_servicio.eliminar_usuario(
+                self.usuario_identificacion_seleccionado,
+                self.usuario_actual.identificacion,
+            )
+            self.limpiar_formulario_usuario()
+            self.refrescar_usuarios()
+            messagebox.showinfo("Usuarios", "Usuario eliminado correctamente.")
+        except ValueError as error:
+            messagebox.showerror("Usuarios", str(error))
+
+    def limpiar_campos_usuario(self):
+        for entrada in (
+            self.usuario_identificacion_entry,
+            self.usuario_nombre_entry,
+            self.usuario_login_entry,
+            self.usuario_contraseña_entry,
+        ):
+            assert entrada is not None
+            entrada.delete(0, tk.END)
+
+    def limpiar_formulario_usuario(self):
+        assert self.usuario_identificacion_entry is not None
+        assert self.usuario_rol_combo is not None
+
+        self.limpiar_campos_usuario()
+        self.usuario_identificacion_seleccionado = None
+        self.usuario_rol_combo.configure(values=("Empleado", "Cliente"), state="readonly")
+        self.usuario_rol_combo.set("Cliente")
+        self.actualizar_texto_rol("Cliente")
+
+        if self.tabla_usuarios is not None:
+            for item in self.tabla_usuarios.selection():
+                self.tabla_usuarios.selection_remove(item)
+
+        self.usuario_identificacion_entry.focus()
+
+    def al_presionar_enter(self, event):
+        # Semana 16: Enter ejecuta el registro mediante un evento de teclado.
+        self.registrar_usuario()
+
+    def al_presionar_escape(self, event):
+        # Semana 16: Escape cancela la seleccion y limpia el formulario.
+        self.limpiar_formulario_usuario()
+
+    def al_seleccionar_rol(self, event):
+        assert self.usuario_rol_combo is not None
+        self.actualizar_texto_rol(self.usuario_rol_combo.get())
+
+    def actualizar_texto_rol(self, rol):
+        if self.usuario_rol_estado is not None:
+            self.usuario_rol_estado.config(text=f"Rol seleccionado: {rol}")
+
 
     def refrescar_usuarios(self):
         assert self.tabla_usuarios is not None
@@ -291,7 +540,7 @@ class MainView(tk.Frame):
             self.tabla_usuarios.insert(
                 "",
                 tk.END,
-                values=(usuario.identificacion, usuario.nombre, usuario.usuario),
+                values=(usuario.identificacion, usuario.nombre, usuario.usuario, usuario.rol),
             )
 
         self.actualizar_barra_estado()
@@ -561,7 +810,7 @@ class MainView(tk.Frame):
             font=("Arial", 20, "bold"),
         ).pack(anchor="w", pady=(0, 16))
 
-    def crear_campo(self, contenedor, etiqueta, fila):
+    def crear_campo(self, contenedor, etiqueta, fila, show=None):
         tk.Label(
             contenedor,
             text=etiqueta,
@@ -570,7 +819,7 @@ class MainView(tk.Frame):
             font=("Arial", 10, "bold"),
         ).grid(row=fila, column=0, sticky="w", pady=(0, 8), padx=(0, 10))
 
-        entrada = tk.Entry(contenedor, width=28, font=("Arial", 10))
+        entrada = tk.Entry(contenedor, width=28, font=("Arial", 10), show=show)
         entrada.grid(row=fila, column=1, sticky="ew", pady=(0, 8))
         return entrada
 

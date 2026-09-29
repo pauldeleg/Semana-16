@@ -26,6 +26,7 @@ class RestauranteServicio:
                 datos.get("nombre", ""),
                 datos.get("usuario", ""),
                 datos.get("contraseña", datos.get("contrasena", "")),
+                datos.get("rol", "Cliente"),
             )
             for datos in usuarios_json
         ]
@@ -95,6 +96,21 @@ class RestauranteServicio:
         ]
         self.archivo_servicio.escribir_json("productos.json", datos)
 
+    
+    def guardar_usuarios(self):
+        datos = [
+            {
+                "identificacion": usuario.identificacion,
+                "nombre": usuario.nombre,
+                "usuario": usuario.usuario,
+                "contraseña": usuario.contraseña,
+                "rol": usuario.rol,
+            }
+            for usuario in self.usuarios
+        ]
+        self.archivo_servicio.escribir_json("usuarios.json", datos)
+        
+        
     def buscar_producto_por_codigo(self, codigo):
         codigo = codigo.strip()
         for producto in self.productos:
@@ -106,6 +122,14 @@ class RestauranteServicio:
         identificacion = identificacion.strip()
         for usuario in self.usuarios:
             if usuario.identificacion == identificacion:
+                return usuario
+        return None
+    
+    
+    def buscar_usuario_por_nombre_usuario(self, nombre_usuario):
+        nombre_usuario = nombre_usuario.strip()
+        for usuario in self.usuarios:
+            if usuario.usuario == nombre_usuario:
                 return usuario
         return None
 
@@ -145,6 +169,70 @@ class RestauranteServicio:
         self.productos.remove(producto_actual)
         self.guardar_productos()
         return producto_actual
+    
+    
+    def registrar_usuario(self, identificacion, nombre, usuario, contraseña, rol):
+        nuevo_usuario = Usuario(identificacion, nombre, usuario, contraseña, rol)
+
+        if nuevo_usuario.rol == "Administrador":
+            raise ValueError("No se pueden registrar nuevos administradores desde esta pantalla.")
+        if self.buscar_usuario_por_identificacion(nuevo_usuario.identificacion) is not None:
+            raise ValueError("Ya existe un usuario con ese identificacion.")
+        if self.buscar_usuario_por_nombre_usuario(nuevo_usuario.usuario) is not None:
+            raise ValueError("Ya existe un usuario con ese nombre de usuario.")
+
+        self.usuarios.append(nuevo_usuario)
+        self.guardar_usuarios()
+        return nuevo_usuario
+
+    def actualizar_usuario(
+        self,
+        identificacion,
+        nombre,
+        usuario,
+        contraseña,
+        rol,
+        identificacion_usuario_actual=None,
+    ):
+        usuario_actual = self.buscar_usuario_por_identificacion(identificacion)
+
+        if usuario_actual is None:
+            raise ValueError("No existe un usuario con esa identificacion.")
+
+        datos_validados = Usuario(identificacion, nombre, usuario, contraseña, rol)
+        usuario_con_mismo_login = self.buscar_usuario_por_nombre_usuario(datos_validados.usuario)
+        if (
+            usuario_con_mismo_login is not None
+            and usuario_con_mismo_login.identificacion != usuario_actual.identificacion
+        ):
+            raise ValueError("Ya existe otro usuario con ese nombre de usuario.")
+
+        if (
+            identificacion_usuario_actual == usuario_actual.identificacion
+            and usuario_actual.rol == "Administrador"
+            and datos_validados.rol != "Administrador"
+        ):
+            raise ValueError("No puede cambiar el rol del administrador actual.")
+
+        usuario_actual.nombre = datos_validados.nombre
+        usuario_actual.usuario = datos_validados.usuario
+        usuario_actual.contraseña = datos_validados.contraseña
+        usuario_actual.rol = datos_validados.rol
+        self.guardar_usuarios()
+        return usuario_actual
+
+    def eliminar_usuario(self, identificacion, identificacion_usuario_actual=None):
+        usuario_actual = self.buscar_usuario_por_identificacion(identificacion)
+
+        if usuario_actual is None:
+            raise ValueError("No existe un usuario con esa identificacion.")
+        if usuario_actual.identificacion == identificacion_usuario_actual:
+            raise ValueError("No puede eliminar el usuario actualmente autenticado.")
+
+        self.usuarios.remove(usuario_actual)
+        self.guardar_usuarios()
+        return usuario_actual
+
     
     def guardar_ventas(self):
         datos = [

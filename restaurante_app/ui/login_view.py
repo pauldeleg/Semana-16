@@ -89,7 +89,7 @@ class LoginView(tk.Frame):
 
         tk.Label(
             contenedor,
-            text="Contrasena",
+            text="Contraseña",
             bg="#ffffff",
             fg="#243447",
             font=("Arial", 10, "bold"),

@@ -1,9 +1,12 @@
 class Usuario:
-    def __init__(self, identificacion, nombre, usuario, contraseña):
+    ROLES_PERMITIDOS = ("Administrador", "Empleado", "Cliente")
+    
+    def __init__(self, identificacion, nombre, usuario, contraseña, rol):
         self.identificacion = identificacion
         self.nombre = nombre
         self.usuario = usuario
         self.contraseña = contraseña
+        self.rol = rol
 
     @staticmethod
     def validar_texto(valor, campo):
@@ -44,3 +47,16 @@ class Usuario:
     @contraseña.setter
     def contraseña(self, valor):
         self._contraseña = self.validar_texto(valor, "contraseña")
+        
+    @property
+    def rol(self):
+        return self._rol
+
+    @rol.setter
+    def rol(self, valor):
+        rol_validado = self.validar_texto(valor, "rol")
+        if rol_validado not in self.ROLES_PERMITIDOS:
+            raise ValueError("El rol seleccionado no es valido.")
+
+        self._rol = rol_validado    
+        
