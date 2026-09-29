@@ -162,9 +162,9 @@ class MainView(tk.Frame):
             wraplength=150,
             justify="left",
         ).pack(anchor="w", pady=(0, 24))
-
+            
         self.crear_boton_menu(frame_sidebar, "Inicio", self.mostrar_inicio, "home.png")
-        if self.usuario_actual.rol == "Asministrador":    
+        if self.usuario_actual.rol == "Administrador":
             self.crear_boton_menu(frame_sidebar, "Usuarios", self.mostrar_usuarios, "users.png")
         self.crear_boton_menu(frame_sidebar, "Productos", self.mostrar_productos, "books.png")
         self.crear_boton_menu(frame_sidebar, "Ventas", self.mostrar_ventas, "sales.png")
@@ -724,8 +724,8 @@ class MainView(tk.Frame):
         listado = self.crear_listado(cuerpo, "Ventas registradas", usar_grid=True)
         self.tabla_ventas = self.crear_tabla(
             listado,
-            ("identificacion", "usuario", "libro", "fecha"),
-            ("Venta", "Usuario", "Libro", "Fecha"),
+            ("identificacion", "usuario", "producto", "fecha"),
+            ("Venta", "Usuario", "Producto", "Fecha"),
         )
         self.refrescar_ventas()
         

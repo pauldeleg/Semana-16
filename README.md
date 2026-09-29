@@ -1,76 +1,520 @@
-# 🍽️ Restaurante App
+# Restaurante App
+
+## Semana 16 - Manejo de eventos en Tkinter
 # Jonnathan Paul Deleg Condo
 
-Aplicación de escritorio desarrollada en **Python** utilizando **Programación Orientada a Objetos (POO)** y la biblioteca gráfica **Tkinter/ttk**.
+## 1. Descripción del proyecto
 
-El proyecto corresponde a la evolución de la aplicación `restaurante_app` desarrollada durante las semanas anteriores de la asignatura. En esta **Semana 15** se incorpora el concepto fundamental de **manejo de eventos**, utilizando el registro de ventas como ejemplo práctico.
+**Restaurante App** es una aplicación desarrollada en Python utilizando Programación Orientada a Objetos y la biblioteca Tkinter para la creación de una interfaz gráfica.
 
-La aplicación permite gestionar usuarios y productos, registrar ventas y almacenar la información de manera persistente mediante archivos **JSON**.
+El proyecto ha evolucionado durante las semanas anteriores incorporando diferentes funcionalidades para la administración de un restaurante, como el inicio de sesión, gestión de productos, registro de ventas y persistencia de información mediante archivos JSON.
+
+En la **Semana 16** se incorporó principalmente el manejo de eventos en Tkinter para implementar una gestión de usuarios más interactiva mediante `bind()`, eventos de teclado, eventos virtuales de `ttk`, callbacks, `command=` y el componente `Treeview`.
 
 ---
 
-## 📚 Semana 15
+## 2. Objetivo de la Semana 16
 
-### Tema
+Aplicar el manejo de eventos en Tkinter dentro de una aplicación existente, utilizando diferentes mecanismos de interacción con el usuario sin modificar la arquitectura modular del proyecto.
 
-**Conceptos fundamentales de manejo de eventos**
+La implementación permite trabajar con:
 
-### Objetivo
+* Eventos de teclado.
+* Eventos virtuales de ttk.
+* `bind()`.
+* `command=`.
+* Callbacks.
+* `Treeview`.
+* `Combobox`.
+* Gestión de usuarios.
+* Roles de usuario.
+* Persistencia mediante `usuarios.json`.
 
-Implementar una operación de venta que permita comprender cómo una acción realizada por el usuario en una interfaz gráfica genera un evento que es atendido mediante un `callback`, el cual coordina la operación con la capa de servicios.
+---
+## 3. Funcionalidades de la aplicación
 
-El flujo principal implementado es:
+La aplicación permite realizar las siguientes operaciones:
+
+### Inicio de sesión
+
+El sistema permite iniciar sesión utilizando un usuario y una contraseña almacenados en `usuarios.json`.
+
+### Gestión de usuarios
+
+El Administrador puede:
+
+* Registrar usuarios.
+* Consultar usuarios.
+* Actualizar usuarios.
+* Eliminar usuarios.
+* Seleccionar usuarios desde un `Treeview`.
+* Asignar roles.
+
+### Gestión de productos
+
+La aplicación permite:
+
+* Registrar productos.
+* Consultar productos.
+* Actualizar productos.
+* Eliminar productos.
+* Controlar el precio.
+* Guardar los productos en `productos.json`.
+
+### Gestión de ventas
+
+La aplicación permite:
+
+* Seleccionar un usuario.
+* Seleccionar un producto.
+* Registrar una venta.
+* Guardar las ventas en `ventas.json`.
+* Consultar las ventas registradas.
+
+---
+
+## 4. Roles del sistema
+
+La aplicación utiliza tres roles:
+
+* **Administrador**
+* **Empleado**
+* **Cliente**
+
+### Administrador
+
+El Administrador tiene acceso a la gestión de usuarios.
+
+Puede registrar, consultar, actualizar y eliminar usuarios.
+
+### Empleado
+
+El Empleado puede utilizar las funciones generales de la aplicación, pero no tiene acceso a la administración de usuarios.
+
+### Cliente
+
+El Cliente puede utilizar las funciones permitidas por la aplicación, pero no tiene acceso a la administración de usuarios.
+
+---
+
+## 5. Manejo de eventos
+
+Una de las principales mejoras realizadas durante la Semana 16 fue la incorporación de diferentes mecanismos para manejar eventos en Tkinter.
+
+---
+
+### 6.1 `command=`
+
+Los botones utilizan `command=` para ejecutar una función cuando el usuario los presiona.
+
+Por ejemplo:
+
+```python
+ttk.Button(
+    formulario,
+    text="Registrar",
+    command=self.registrar_usuario
+)
+```
+
+Cuando el usuario presiona el botón **Registrar**, se ejecuta el método `registrar_usuario()`.
+
+También se utiliza para los botones:
+
+* Registrar.
+* Actualizar.
+* Eliminar.
+* Limpiar.
+* Registrar venta.
+
+---
+
+### 6.2 `bind()`
+
+El método `bind()` permite asociar un evento de Tkinter con una función callback.
+
+En la aplicación se utiliza para detectar diferentes acciones del usuario.
+
+Por ejemplo:
+
+```python
+self.tree_usuarios.bind(
+    "<<TreeviewSelect>>",
+    self.on_usuario_selected
+)
+```
+
+Esto permite ejecutar `on_usuario_selected()` cuando el usuario selecciona una fila del Treeview.
+
+---
+
+## 6. Evento `<<TreeviewSelect>>`
+
+El evento virtual:
 
 ```text
+<<TreeviewSelect>>
+```
+
+se utiliza para detectar la selección de un usuario en el Treeview.
+
+El funcionamiento es:
+
+```text
+Usuario selecciona una fila
+        ↓
+<<TreeviewSelect>>
+        ↓
+on_usuario_selected()
+        ↓
+Obtiene la identificación
+        ↓
+RestauranteServicio.buscar_usuario()
+        ↓
+Obtiene el objeto Usuario
+        ↓
+Carga los datos en el formulario
+```
+
+La identificación de la fila se utiliza para consultar el objeto correspondiente mediante `RestauranteServicio`.
+
+El Treeview muestra solamente:
+
+* Identificación.
+* Nombre.
+* Usuario.
+* Rol.
+
+La contraseña no se muestra en la tabla.
+
+---
+
+## 7. Evento `<Return>`
+
+El evento:
+
+```text
+<Return>
+```
+
+permite utilizar la tecla **Enter** como atajo para registrar un usuario.
+
+Se implementa mediante:
+
+```python
+self.root.bind(
+    "<Return>",
+    self.on_enter
+)
+```
+
+El callback reutiliza el método de registro:
+
+```python
+def on_enter(self, event):
+    self.registrar_usuario()
+```
+
+De esta manera no se duplica la lógica de registro dentro del evento.
+
+---
+
+## 8. Evento `<Escape>`
+
+El evento:
+
+```text
+<Escape>
+```
+
+permite limpiar el formulario.
+
+Se implementa mediante:
+
+```python
+self.root.bind(
+    "<Escape>",
+    self.on_escape
+)
+```
+
+El callback ejecuta:
+
+```python
+def on_escape(self, event):
+    self.limpiar_usuario()
+```
+
+También se elimina la selección actual del Treeview.
+
+---
+
+## 9. Evento `<<ComboboxSelected>>`
+
+El formulario de usuarios utiliza un `Combobox` para seleccionar el rol.
+
+Las opciones disponibles son:
+
+```text
+Administrador
+Empleado
+Cliente
+```
+
+El evento:
+
+```text
+<<ComboboxSelected>>
+```
+
+detecta cuando cambia el rol seleccionado.
+
+Se implementa mediante:
+
+```python
+self.combo_rol.bind(
+    "<<ComboboxSelected>>",
+    self.on_rol_selected
+)
+```
+
+El callback responde al cambio realizado por el usuario.
+
+---
+
+## 10. Callbacks
+
+Los callbacks son métodos que se ejecutan como respuesta a determinadas acciones o eventos.
+
+Además, los botones utilizan métodos como:
+
+```text
+registrar_usuario()
+actualizar_usuario()
+eliminar_usuario()
+limpiar_usuario()
+```
+
+Los callbacks de la interfaz no contienen directamente las reglas principales del negocio.
+
+La interfaz solicita las operaciones a `RestauranteServicio`.
+
+---
+
+## 11. Arquitectura del proyecto
+
+El proyecto mantiene una arquitectura modular para separar las responsabilidades.
+
+```text
+Modelos
+   ↓
+Servicios
+   ↓
+Interfaz gráfica
+   ↓
+main.py
+```
+
+### Modelos
+
+Los modelos representan las entidades principales del restaurante:
+
+```text
+Producto
 Usuario
-   ↓
-Acción en la interfaz
-   ↓
-Botón
-   ↓
-command=
-   ↓
-Callback
-   ↓
-RestauranteServicio
-   ↓
-Persistencia en JSON
-   ↓
-Actualización de la interfaz
-   ↓
-Respuesta visual
+Venta
+```
+
+Los archivos correspondientes son:
+
+```text
+modelos/
+├── producto.py
+├── usuario.py
+└── venta.py
 ```
 
 ---
 
-# 🎯 Objetivos del proyecto
+### Servicios
 
-## Objetivo general
+La capa de servicios contiene las reglas y operaciones del sistema.
 
-Continuar el desarrollo de `restaurante_app`, incorporando el registro de ventas y aplicando los fundamentos básicos del manejo de eventos en una aplicación gráfica desarrollada con Tkinter.
+```text
+servicios/
+├── archivo_servicio.py
+└── restaurante_servicio.py
+```
 
-## Objetivos específicos
+`RestauranteServicio` se encarga de:
 
-* Mantener la arquitectura modular desarrollada en las semanas anteriores.
-* Conservar el inicio de sesión de la aplicación.
-* Mantener la gestión y consulta de productos.
-* Mantener la consulta de usuarios.
-* Incorporar una nueva sección de ventas.
-* Crear el modelo `Venta`.
-* Relacionar usuarios con productos mediante una venta.
-* Utilizar `command=` en los botones de la interfaz.
-* Implementar callbacks para responder a las acciones del usuario.
-* Delegar las reglas de negocio a `RestauranteServicio`.
-* Guardar las ventas en `ventas.json`.
-* Mostrar las ventas registradas mediante un `Treeview`.
-* Actualizar la información de la interfaz después de una venta.
-* Utilizar la carpeta `assets/` para recursos visuales.
-* Mantener una separación clara entre interfaz, modelos, servicios y datos.
+* Validar usuarios.
+* Registrar usuarios.
+* Actualizar usuarios.
+* Eliminar usuarios.
+* Buscar usuarios.
+* Registrar productos.
+* Actualizar productos.
+* Eliminar productos.
+* Registrar ventas.
+* Coordinar la persistencia.
+
+`ArchivoServicio` se encarga de leer y guardar los archivos JSON.
 
 ---
 
-# 🏗️ Arquitectura del proyecto
+### Interfaz gráfica
 
+La interfaz utiliza Tkinter y ttk.
+
+```text
+ui/
+├── login_view.py
+└── main_view.py
+```
+
+### `LoginView`
+
+Se encarga del inicio de sesión.
+
+### `MainView`
+
+Se encarga de mostrar y coordinar:
+
+* Usuarios.
+* Productos.
+* Ventas.
+* Formularios.
+* Botones.
+* Treeview.
+* Combobox.
+* Eventos.
+
+---
+
+## 12. Persistencia de datos
+
+La aplicación utiliza archivos JSON para conservar la información.
+
+La carpeta `datos` contiene:
+
+```text
+datos/
+├── productos.json
+├── usuarios.json
+└── ventas.json
+```
+
+### usuarios.json
+
+Almacena información de los usuarios:
+
+```json
+[
+    {
+        "identificacion": "001",
+        "nombre": "Administrador",
+        "usuario": "admin",
+        "password": "1234",
+        "rol": "Administrador"
+    }
+]
+```
+
+### productos.json
+
+Almacena los productos registrados.
+
+### ventas.json
+
+Almacena las ventas realizadas.
+
+La interfaz gráfica no realiza directamente operaciones de lectura o escritura sobre los archivos JSON.
+
+El flujo de persistencia es:
+
+```text
+MainView
+    ↓
+RestauranteServicio
+    ↓
+ArchivoServicio
+    ↓
+Archivo JSON
+```
+
+---
+
+## 13. Gestión de usuarios mediante Treeview
+
+El Treeview utilizado para los usuarios contiene las siguientes columnas:
+
+```text
+Identificación | Nombre | Usuario | Rol
+```
+
+Ejemplo:
+
+```text
+001 | Administrador | admin     | Administrador
+002 | Carlos        | empleado  | Empleado
+003 | Paul          | cliente   | Cliente
+```
+
+La contraseña no se muestra en el Treeview.
+
+Cuando se selecciona una fila, se obtiene la identificación del usuario y se realiza una búsqueda mediante `RestauranteServicio`.
+
+---
+
+## 14. Validaciones
+
+Las validaciones se encuentran principalmente en la capa de servicios y en los modelos.
+
+Entre las validaciones implementadas se encuentran:
+
+* La identificación del usuario es obligatoria.
+* El nombre es obligatorio.
+* El nombre de usuario es obligatorio.
+* La contraseña es obligatoria.
+* El rol debe ser válido.
+* No se permiten identificaciones de usuario duplicadas.
+* No se permiten nombres de usuario duplicados.
+* No se puede eliminar el usuario actualmente conectado.
+* El código del producto es obligatorio.
+* No se permiten códigos de productos duplicados.
+* El precio no puede ser negativo.
+* No se puede registrar una venta si no existe stock.
+
+---
+
+## 15. Recursos visuales
+
+El proyecto utiliza la carpeta:
+
+```text
+assets/
+```
+
+para almacenar los recursos visuales.
+
+La estructura es:
+
+```text
+assets/
+├── logo.png
+├── usuario.png
+├── producto.png
+└── venta.png
+```
+
+El archivo `logo.png` se utiliza como logotipo de la aplicación.
+
+Los demás recursos pueden utilizarse como íconos relacionados con las diferentes secciones del sistema.
+
+---
+
+## 16. Estructura completa del proyecto
 
 ```text
 restaurante_app/
@@ -96,620 +540,62 @@ restaurante_app/
 │   ├── login_view.py
 │   └── main_view.py
 │
-├── assets/  
+├── assets/
+│   ├── logo.png
+│   ├── usuario.png
+│   ├── producto.png
+│   └── venta.png
 │
-│
-├── main.py
-└── README.md
-```
-
----
-
-# 📂 Descripción de las carpetas y archivos
-
-## 📁 datos/
-
-Contiene los archivos JSON utilizados para almacenar la información de la aplicación.
-
-### `productos.json`
-
-Almacena los productos registrados.
-
-Cada producto contiene información como:
-
-* Código
-* Nombre
-* Categoría
-* Precio
-
-Ejemplo:
-
-```json
-[
-    {
-        "codigo": "P001",
-        "nombre": "Hamburguesa",
-        "categoria": "Comida",
-        "precio": 4.5,
-    }
-]
-```
-
-### `usuarios.json`
-
-Almacena los usuarios que pueden utilizar la aplicación.
-
-Ejemplo:
-
-```json
-[
-    {
-        "identificacion": "001",
-        "nombre": "Administrador",
-        "usuario": "admin",
-        "password": "1234"
-    }
-]
-```
-
-### `ventas.json`
-
-Es el nuevo archivo incorporado en la Semana 15.
-
-Permite conservar las ventas realizadas.
-
-Ejemplo:
-
-```json
-[
-    {
-        "usuario_id": "001",
-        "producto_codigo": "P001",
-        "fecha": "2026-09-24 09:35:20"
-    }
-]
-```
-
----
-
-# 📁 modelos/
-
-Contiene las clases que representan las entidades principales de la aplicación.
-
-## `producto.py`
-
-Contiene la clase `Producto`.
-
-La clase utiliza propiedades y setters para controlar los datos del producto.
-
-Entre sus atributos se encuentran:
-
-* `codigo`
-* `nombre`
-* `categoria`
-* `precio`
-
-También contiene métodos para convertir los objetos a diccionarios y reconstruirlos desde los datos almacenados en JSON.
-
----
-
-## `usuario.py`
-
-Contiene la clase `Usuario`.
-
-Representa a las personas registradas en el sistema.
-
-Sus principales atributos son:
-
-* `identificacion`
-* `nombre`
-* `usuario`
-* `password`
-
-La clase también utiliza `@property` y setters para controlar los valores.
-
----
-
-## `venta.py`
-
-Es el nuevo modelo agregado en la Semana 15.
-
-Representa una operación de venta y relaciona:
-
-```text
-Usuario + Producto + Fecha
-```
-
-Sus principales atributos son:
-
-* `usuario_id`
-* `producto_codigo`
-* `fecha`
-
-La clase también permite convertir una venta en un diccionario mediante `to_dict()` para almacenarla en `ventas.json`.
-
----
-
-# 📁 servicios/
-
-Contiene la lógica de funcionamiento de la aplicación.
-
-## `archivo_servicio.py`
-
-Se encarga de la lectura y escritura de archivos JSON.
-
-Sus principales responsabilidades son:
-
-* Leer archivos JSON.
-* Guardar información en archivos JSON.
-* Crear carpetas necesarias.
-* Manejar errores relacionados con los archivos.
-
-La interfaz gráfica no manipula directamente los archivos JSON.
-
----
-
-## `restaurante_servicio.py`
-
-Contiene las reglas de negocio de la aplicación.
-
-Entre sus responsabilidades se encuentran:
-
-* Validar el inicio de sesión.
-* Consultar usuarios.
-* Buscar productos.
-* Registrar productos.
-* Actualizar productos.
-* Eliminar productos.
-* Registrar ventas.
-* Verificar que el usuario exista.
-* Verificar que el producto exista.
-* Verificar que exista stock.
-* Disminuir el stock después de una venta.
-* Guardar productos.
-* Guardar ventas.
-
-La operación de venta sigue el siguiente proceso:
-
-```text
-Buscar usuario
-      ↓
-¿Existe?
-      ↓
-Buscar producto
-      ↓
-¿Existe?
-      ↓
-¿Tiene stock?
-      ↓
-Disminuir stock
-      ↓
-Crear venta
-      ↓
-Guardar venta
-```
-
----
-
-# 📁 ui/
-
-Contiene las ventanas y componentes gráficos desarrollados con Tkinter y ttk.
-
-## `login_view.py`
-
-Contiene la interfaz de inicio de sesión.
-
-Permite ingresar:
-
-* Usuario
-* Contraseña
-
-El botón de ingreso utiliza un evento mediante `command=`.
-
-Ejemplo:
-
-```python
-ttk.Button(
-    frame,
-    text="Ingresar",
-    command=self.iniciar_sesion
-)
-```
-
-El callback `iniciar_sesion()` obtiene los datos introducidos y solicita al servicio la validación correspondiente.
-
----
-
-## `main_view.py`
-
-Contiene la ventana principal de la aplicación.
-
-La interfaz está organizada en diferentes secciones:
-
-* Usuarios
-* Productos
-* Ventas
-
-La sección de productos mantiene las operaciones desarrolladas anteriormente:
-
-* Registrar
-* Consultar
-* Actualizar
-* Eliminar
-* Limpiar
-
-La nueva sección de ventas permite:
-
-* Seleccionar un usuario.
-* Seleccionar un producto.
-* Registrar una venta.
-* Consultar las ventas realizadas.
-* Actualizar la información después de una operación.
-
----
-
-# 🖼️ Carpeta assets/
-
-La carpeta `assets/` contiene los recursos visuales utilizados por la aplicación.
-
-Ejemplo:
-
-```text
-assets/
-
-Estos recursos permiten mejorar la presentación visual de la aplicación y cumplir con el requisito de utilizar un logotipo e íconos dentro de la interfaz.
-
----
-
-# ⚡ Manejo de eventos
-
-Uno de los principales objetivos de la Semana 15 es comprender el funcionamiento de los eventos.
-
-En Tkinter, un botón puede ejecutar una función mediante el parámetro:
-
-```python
-command=
-```
-
-Por ejemplo:
-
-```python
-self.btn_registrar_venta = ttk.Button(
-    frame_venta,
-    text="Registrar venta",
-    command=self.registrar_venta
-)
-```
-
-Cuando el usuario presiona el botón, Tkinter ejecuta:
-
-```python
-self.registrar_venta()
-```
-
-Este método funciona como **callback**.
-
----
-
-# 🔄 Flujo del evento de una venta
-
-El registro de una venta sigue el siguiente flujo:
-
-```text
-1. El usuario selecciona un usuario
-                ↓
-2. El usuario selecciona un producto
-                ↓
-3. Presiona "Registrar venta"
-                ↓
-4. Tkinter detecta el evento
-                ↓
-5. command= ejecuta el callback
-                ↓
-6. El callback obtiene las selecciones
-                ↓
-7. Se llama a RestauranteServicio
-                ↓
-8. El servicio valida la operación
-                ↓
-9. Se disminuye el stock
-                ↓
-10. Se crea la venta
-                ↓
-11. Se guarda en ventas.json
-                ↓
-12. Se actualiza el Treeview
-                ↓
-13. Se muestra un mensaje al usuario
-```
-
-Este proceso permite observar cómo una acción realizada en la interfaz puede generar una respuesta en toda la aplicación.
-
----
-
-# 🛒 Registro de una venta
-
-Para registrar una venta se deben cumplir las siguientes condiciones:
-
-1. El usuario debe existir.
-2. El producto debe existir.
-
-Cuando todas las condiciones se cumplen:
-
-```text
-Usuario seleccionado
-        +
-Producto seleccionado
-        ↓
-Registro de venta
-        ↓
-Guardado en ventas.json
-```
-
-La venta queda registrada en `ventas.json`.
-
----
-
-# 📊 Visualización de las ventas
-
-Las ventas registradas se muestran mediante un componente `Treeview`.
-
-La tabla presenta información como:
-
-| Usuario       | Producto    | Fecha               |
-| ------------- | ----------- | ------------------- |
-| Administrador | Hamburguesa | 2026-09-24 09:35:20 |
-
-Después de registrar una venta, la tabla se actualiza automáticamente.
-
-Esto permite que el usuario observe inmediatamente el resultado de la acción realizada.
-
----
-
-# 💾 Persistencia
-
-La información de la aplicación se mantiene mediante archivos JSON.
-
-Los principales archivos son:
-
-```text
-productos.json
-usuarios.json
-ventas.json
-```
-
-La información de las ventas se guarda mediante:
-
-```python
-self.guardar_ventas()
-```
-
-El archivo se actualiza después de registrar correctamente una venta.
-
-Al cerrar y volver a ejecutar la aplicación, las ventas almacenadas pueden recuperarse nuevamente.
-
----
-
-# 🧩 Separación de responsabilidades
-
-El proyecto mantiene una separación de responsabilidades.
-
-### Interfaz gráfica
-
-Se encarga de:
-
-* Mostrar información.
-* Recibir datos del usuario.
-* Detectar eventos.
-* Ejecutar callbacks.
-* Mostrar mensajes.
-
-### Callback
-
-Se encarga de:
-
-* Obtener los datos seleccionados.
-* Coordinar la operación.
-* Llamar al servicio.
-* Actualizar la interfaz.
-
-### RestauranteServicio
-
-Se encarga de:
-
-* Validar reglas de negocio.
-* Buscar usuarios.
-* Buscar productos.
-* Verificar stock.
-* Crear ventas.
-* Solicitar la persistencia.
-
-### ArchivoServicio
-
-Se encarga de:
-
-* Leer JSON.
-* Guardar JSON.
-
-### Modelos
-
-Representan las entidades:
-
-```text
-Usuario
-Producto
-Venta
-```
-
-# ⚠️ Validaciones implementadas
-
-El sistema controla diferentes situaciones.
-
-### Usuario vacío
-
-Si no se selecciona un usuario:
-
-```text
-Seleccione un usuario.
-```
-
-### Producto vacío
-
-Si no se selecciona un producto:
-
-```text
-Seleccione un producto.
-```
-
-### Usuario inexistente
-
-El servicio informa:
-
-```text
-El usuario seleccionado no existe.
-```
-
-### Producto inexistente
-
-El servicio informa:
-
-```text
-El producto seleccionado no existe.
+└── main.py
+|__README.md
 ```
 
 
 
 ---
 
-# 📦 Requisitos
 
-Para ejecutar el proyecto se necesita:
+## 17. Evolución del proyecto
 
-* Python instalado.
-* Tkinter disponible.
-* Los archivos JSON dentro de la carpeta `datos`.
-* La estructura de carpetas del proyecto correctamente organizada.
+El proyecto mantiene la continuidad con las semanas anteriores.
 
-
-
-El inicio de sesión tiene finalidad académica y utiliza los datos almacenados en `usuarios.json`.
-
----
-
-# ▶️ Ejecución
-
-Desde la carpeta principal del proyecto ejecutar:
-
-```bash
-python main.py
-```
-
----
-
-# 📌 Evolución del proyecto
-
-El proyecto representa una evolución progresiva:
+La evolución se puede resumir de la siguiente manera:
 
 ```text
 Semanas anteriores
-       ↓
-Modelos y POO
-       ↓
+        ↓
+Programación Orientada a Objetos
+        ↓
+Productos
+        ↓
+Usuarios
+        ↓
 Persistencia JSON
-       ↓
-Interfaz gráfica Tkinter
-       ↓
-Gestión de productos y usuarios
-       ↓
-Semana 15
-       ↓
-Manejo de eventos
-       ↓
-Registro de ventas
+        ↓
+Ventas
+        ↓
+Interfaz Tkinter
+        ↓
+Componentes y contenedores
+        ↓
+Eventos y callbacks
+        ↓
+Semana 16
+Gestión de usuarios mediante eventos
 ```
 
-De esta manera, la Semana 15 no reconstruye el proyecto desde cero, sino que agrega una nueva funcionalidad sobre la aplicación existente.
+La Semana 16 no reemplaza las funcionalidades anteriores, sino que las amplía mediante el manejo de eventos.
 
 ---
 
-# 🧠 Conceptos de POO aplicados
+## 18. Conclusión
 
-El proyecto utiliza diferentes conceptos de Programación Orientada a Objetos.
+La implementación de la Semana 16 permitió incorporar el manejo de eventos a la aplicación Restaurante App.
 
-### Encapsulamiento
+Mediante `bind()` se asociaron eventos de teclado y eventos virtuales de ttk con diferentes callbacks. El evento `<<TreeviewSelect>>` permite seleccionar usuarios y cargar sus datos en el formulario, mientras que `<Return>` y `<Escape>` facilitan la interacción mediante el teclado.
 
-Se utilizan atributos privados mediante variables como:
+También se utilizó `<<ComboboxSelected>>` para responder a la selección de roles y `command=` para ejecutar las operaciones de los botones.
 
-```python
-self._nombre
-self._precio
+La lógica de negocio y la persistencia se mantienen separadas de la interfaz gráfica mediante `RestauranteServicio` y `ArchivoServicio`. Los usuarios se almacenan en `usuarios.json`, permitiendo conservar la información después de cerrar y volver a ejecutar la aplicación.
 
-```
-
-y se accede a ellos mediante propiedades.
-
-### Propiedades
-
-Se utilizan:
-
-```python
-@property
-```
-
-y setters para controlar los datos de los objetos.
-
-### Clases
-
-El sistema cuenta con clases como:
-
-```text
-Producto
-Usuario
-Venta
-ArchivoServicio
-RestauranteServicio
-LoginView
-MainView
-```
-
-### Separación de responsabilidades
-
-Cada componente realiza una función específica para evitar concentrar toda la lógica en un solo archivo.
-
----
-
-# 📈 Resultado esperado
-
-Al finalizar la Semana 15, `restaurante_app` debe permitir:
-
-* Iniciar sesión.
-* Consultar usuarios.
-* Registrar productos.
-* Consultar productos.
-* Actualizar productos.
-* Eliminar productos.
-* Seleccionar usuarios.
-* Seleccionar productos.
-* Registrar ventas.
-* Disminuir automáticamente el stock.
-* Guardar las ventas en `ventas.json`.
-* Recuperar las ventas al reiniciar.
-* Mostrar las ventas en una tabla.
-* Responder a las acciones mediante eventos y callbacks.
-* Utilizar recursos gráficos desde `assets/`.
-
----
-
-# 📝 Conclusiones
-
-1. La incorporación de la sección de ventas permitió comprender de manera práctica cómo funcionan los eventos en una aplicación gráfica, ya que una acción realizada por el usuario puede activar un botón mediante `command=` y ejecutar un callback.
-
-2. El uso de callbacks permite conectar las acciones realizadas en la interfaz con los métodos del sistema, manteniendo una comunicación organizada entre la interfaz gráfica y la capa de servicios.
-
-3. La utilización de `RestauranteServicio` permite mantener las reglas de la venta fuera de la interfaz, facilitando la separación de responsabilidades y evitando que la lógica del negocio se concentre directamente en Tkinter.
-
-4. La incorporación de `ventas.json` permitió conservar las operaciones realizadas y comprobar la importancia de la persistencia de información en una aplicación que trabaja con archivos.
-
-5. El registro de ventas también permitió relacionar los conceptos de usuarios, productos y stock, demostrando cómo diferentes objetos pueden interactuar dentro de una aplicación orientada a objetos.
-
-6. Finalmente, la evolución de `restaurante_app` permitió integrar los conocimientos adquiridos durante las semanas anteriores, manteniendo una arquitectura modular y agregando nuevas funcionalidades sin reconstruir completamente el proyecto.
+De esta manera, Restaurante App conserva las funcionalidades desarrolladas anteriormente y evoluciona incorporando una gestión de usuarios basada en eventos, manteniendo una arquitectura modular y coherente con el dominio de un restaurante.

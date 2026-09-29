@@ -3,12 +3,21 @@
         "identificacion": "001",
         "nombre": "Administrador",
         "usuario": "admin",
-        "contrasena": "1234"
+        "contraseña": "1234",
+        "rol": "Administrador"
     },
     {
         "identificacion": "002",
         "nombre": "Paul",
         "usuario": "paul",
-        "contrasena": "12345"
+        "contraseña": "12345",
+        "rol": "Cliente"
+    },
+    {
+        "identificacion": "003",
+        "nombre": "Julio",
+        "usuario": "julio",
+        "contraseña": "4444",
+        "rol": "Cliente"
     }
 ]
